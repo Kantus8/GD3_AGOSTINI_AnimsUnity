@@ -9,6 +9,7 @@ public enum IAState
     None,
     Idle,
     Patrol,
+    RandomLook,
     PlayerSeen,
     PlayerNear,
 }
@@ -17,6 +18,8 @@ public class IAController : MonoBehaviour
     public IAState _state = IAState.None;
     [SerializeField] private Animator _animator;
     public bool PlayerNear = false;
+    public bool PlayerSeen = false;
+    public bool RandomLook = false;
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private GameObject _waypoint;
     // Start is called before the first frame update
@@ -48,6 +51,10 @@ public class IAController : MonoBehaviour
                 //
                 //
                 break;
+            case IAState.RandomLook:
+                //
+                //
+                break;
             case IAState.PlayerSeen:
                 //
                 _agent.SetDestination(_waypoint.transform.position);
@@ -76,6 +83,16 @@ public class IAController : MonoBehaviour
                     _state = IAState.PlayerNear;
                     _animator.SetBool("isPlayerClose", true);
                 }
+                else if (PlayerSeen)
+                {
+                    _state = IAState.PlayerSeen;
+                    _animator.SetBool("isPlayerSeen", true);
+                }
+                else if (RandomLook)
+                {
+                    _state = IAState.RandomLook;
+                    _animator.SetBool("isRandomLook", true);
+                }
                 break;
             case IAState.Patrol:
                 if (PlayerNear)
@@ -83,12 +100,44 @@ public class IAController : MonoBehaviour
                     _state = IAState.PlayerNear;
                     _animator.SetBool("isPlayerClose", true);
                 }
+                else if (PlayerSeen)
+                {
+                    _state = IAState.PlayerSeen;
+                    _animator.SetBool("isPlayerSeen", true);
+                }
+                else if (RandomLook)
+                {
+                    _state = IAState.RandomLook;
+                    _animator.SetBool("isRandomLook", true);
+                }
+                break;
+            case IAState.RandomLook:
+                if (PlayerNear)
+                {
+                    _state = IAState.PlayerNear;
+                    _animator.SetBool("isPlayerClose", true);
+                }
+                else if (PlayerSeen)
+                {
+                    _state = IAState.PlayerSeen;
+                    _animator.SetBool("isPlayerSeen", true);
+                }
+                else if (!RandomLook)
+                {
+                    _state = IAState.Idle;
+                    _animator.SetBool("isRandomLook", false);
+                }
                 break;
             case IAState.PlayerSeen:
                 if (PlayerNear)
                 {
                     _state = IAState.PlayerNear;
                     _animator.SetBool("isPlayerClose", true);
+                }
+                else if (!PlayerSeen)
+                {
+                    _state = IAState.Idle;
+                    _animator.SetBool("isPlayerSeen", false);
                 }
                 break;
             case IAState.PlayerNear:
